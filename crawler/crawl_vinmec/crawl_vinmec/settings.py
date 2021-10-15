@@ -12,6 +12,9 @@ BOT_NAME = 'crawl_vinmec'
 SPIDER_MODULES = ['crawl_vinmec.spiders']
 NEWSPIDER_MODULE = 'crawl_vinmec.spiders'
 
+FEED = 'json'
+FEED_EXPORT_ENCODING = 'utf-8'
+
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'crawl_vinmec (+http://www.yourdomain.com)'
