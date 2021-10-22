@@ -15,9 +15,18 @@ public class PingController {
 
     public PingController(PingService pingService) {this.pingService = pingService;}
 
+
+    // call service
     @GetMapping("/ping")
     public ResponseEntity<Ping> ping(){
         return ResponseEntity.ok(pingService.readFirst());
+
+    }
+
+    // call module : phai chay docker len nhe
+    @GetMapping("/pong")
+    public ResponseEntity<String> pong(){
+        return ResponseEntity.ok(pingService.connAnotherContainer());
 
     }
 }
