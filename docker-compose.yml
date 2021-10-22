@@ -33,6 +33,16 @@ services:
         # depends_on:
             # - my-mongodb
 
+    medical-module:
+        image: medical-module:v1
+        container_name: medical-module-name
+        restart: always
+        ports:
+            - "8083:8083"
+        networks:
+            - cluster-network
+
+
 
 networks:
     cluster-network:
