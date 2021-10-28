@@ -27,7 +27,7 @@ class Ds_Benh_Spider(scrapy.Spider):
         # lay ra cac element co chua link toi benh 
         list_element = response.css(".collapsible-target > li ").extract()
 
-        for url_element in list_element[:10]:
+        for url_element in list_element:
             soup = BeautifulSoup(url_element) 
             url_mot_benh = soup.a["href"] 
             yield scrapy.Request(response.urljoin(url_mot_benh), callback=self.parse_tablet) 
