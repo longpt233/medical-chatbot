@@ -41,7 +41,19 @@ services:
             - "8083:8083"
         networks:
             - cluster-network
-
+    mongodb:
+        image: mongo
+        container_name: mongodb
+        environment:
+            - PUID=1000
+            - PGID=1000
+        volumes:
+            - ./mongodb/data/db:/data/db
+        ports:
+            - "27017:27017"
+        restart: always
+        networks:
+            - cluster-network
 
 
 networks:
