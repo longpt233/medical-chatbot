@@ -54,8 +54,17 @@ services:
         restart: always
         networks:
             - cluster-network
-
-
+    keycloak:
+        image: quay.io/keycloak/keycloak:latest
+        container_name: keycloak
+        environment:
+            KEYCLOAK_USER: admin
+            KEYCLOAK_PASSWORD: admin
+        ports:
+            -   "8080:8080"
+        restart: always
+        networks:
+            - cluster-network
 networks:
     cluster-network:
         driver: bridge

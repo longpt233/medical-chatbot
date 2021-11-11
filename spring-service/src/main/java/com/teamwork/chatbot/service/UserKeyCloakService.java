@@ -195,4 +195,29 @@ public class UserKeyCloakService {
         }
         return svResponse;
     }
+    public ResponseBuilder changeUserProfile(String username, String newFirstName, String newLastName){
+        ResponseBuilder svResponse;
+        Keycloak keycloak = getKeycloakInstance();
+        Optional<UserRepresentation> user = keycloak.realm(keycloakRealm).users().search(username).stream().filter(
+                u -> u.getUsername().equals(username)
+        ).findFirst();
+        if(user.isPresent()){
+            UserRepresentation userRepresentation = user.get();
+            UserResource userResource = keycloak.realm(keycloakRealm).users().get(userRepresentation.getId());
+            userRepresentation.setFirstName(newFirstName);
+            userRepresentation.setLastName(newLastName);
+
+            userResource.update(userRepresentation);
+            svResponse = new ResponseBuilder.Builder(200)
+                    .buildMessage("update password successfully")
+                    .buildData("")
+                    .build();
+        }else {
+            svResponse = new ResponseBuilder.Builder(400)
+                    .buildMessage("username not found")
+                    .buildData("")
+                    .build();
+        }
+        return svResponse;
+    }
 }
