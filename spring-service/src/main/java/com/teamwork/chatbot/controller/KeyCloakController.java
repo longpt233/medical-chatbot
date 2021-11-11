@@ -71,4 +71,12 @@ public class KeyCloakController {
         ResponseBuilder response = service.changePassword(username,oldPassword,newPassword);
         return new ResponseEntity<>(response,HttpStatus.valueOf(response.getCode()));
     }
+    @PostMapping(value = "/updateProfile",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> updateProfile(@RequestParam String username,
+                                                 @RequestParam String newFirstName,
+                                                 @RequestParam String newLastName){
+        ResponseBuilder response = service.changeUserProfile(username,newFirstName,newLastName);
+        return new ResponseEntity<>(response,HttpStatus.valueOf(response.getCode()));
+    }
 }
