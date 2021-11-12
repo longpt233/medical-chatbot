@@ -1,0 +1,13 @@
+version: "2.0"
+
+rules:
+
+- rule: Trả lời về thông tin bệnh
+  steps:
+  - intent: disease_info
+  - action: action_disease_info
+
+- rule: Chuẩn đoán bệnh dựa trên triệu chứng
+  steps:
+  - intent: predict_disease
+  - action: action_predict_disease

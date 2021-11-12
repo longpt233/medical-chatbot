@@ -1,0 +1,11 @@
+version: "2.0"
+nlu:
+- intent: disease_info
+  examples: |
+    - Tôi muốn hỏi về bệnh [viêm xoang](disease).
+    - Bệnh [tiểu đường](disease) là gì?
+- intent: predict_disease
+  examples: |
+    - Tôi bị [đau đầu](symptom) là bị bệnh gì?
+    - [Mất ngủ](symptom) có phải là bệnh không?
+    - [Hoa mắt](symptom), [chóng mặt](symptom) là dấu hiệu của bệnh gì?
