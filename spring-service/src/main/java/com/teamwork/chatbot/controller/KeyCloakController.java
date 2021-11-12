@@ -39,7 +39,8 @@ public class KeyCloakController {
     }
     @PostMapping(value = "/refresh",
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> refresh(@RequestParam String refreshToken){
+    public ResponseEntity<Object> refresh(@RequestHeader("Authorization") String bearerToken){
+        String refreshToken = bearerToken.split(" ")[1];
         ResponseBuilder response = new ResponseBuilder.Builder(200)
                 .buildMessage("refresh token successfully")
                 .buildData(service.refreshToken(refreshToken))
@@ -48,7 +49,8 @@ public class KeyCloakController {
     }
     @GetMapping(value = "/getUserProfile",
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> getUserProfile(@RequestParam String accessToken){
+    public ResponseEntity<Object> getUserProfile(@RequestHeader("Authorization") String bearerToken){
+        String accessToken = bearerToken.split(" ")[1];
         ResponseBuilder response = new ResponseBuilder.Builder(200)
                 .buildMessage("get user information successfully")
                 .buildData(service.getUserInfo(accessToken))
