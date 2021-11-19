@@ -1,17 +1,17 @@
 package com.teamwork.chatbot.entity;
 
-
-import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document
+import java.util.List;
+
+@Document(collection = "account")
 @Data
-@Builder
-public class Ping {
+public class UserFullProfileMongo {
     @Id
     private String id;
-    private String name;
-    private String color;
+    private String userKeycloakId;
+    private String email;
+    private String username;
 }

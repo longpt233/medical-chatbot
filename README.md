@@ -2,6 +2,13 @@
 midterm information system integration
 
 
+## How to run 
+
+```bash
+docker-compose build
+docker-compose up
+```
+
 ## how to build 
 
 - build image spring
@@ -39,4 +46,32 @@ docker-compose up
 - spring : 8081
 - image medical : 8083 : spring se call module nay
 
+
+## key-cloak 
+
+- la 1 server auth
+- port 8080  
+
+**Use** : sau khi docker compose up len thi tien hanh init mot so config 
+- from : https://medium.com/devops-dudes/securing-spring-boot-rest-apis-with-keycloak-1d760b2004e
+> ----
+
+- *add reaml* : **Tichhop-Reaml**. sau buoc nay no se tao san cho minh auth o ```http://localhost:8080/auth/realms/Tichhop-Reaml/account/```
+> ----
+
+- *add client* :
+> name :spring-service.   
+> protocol: openid-connect  
+> root url : http://spring-service:8081 . la service va port giong trong docker  
+
+> ----
+- sau khi tao thanh cong client : set 2 muc Access Type = confidential, Service Account Enabled to ON  va Save lai 
+- qua tab cradentials lay secretkey, chinh lai trong properties spring cho dung 
+
+> ----
+- qua tab role spring-service add 2 role user-role va admin-role, 
+- qua tab role Realm          add 2 role user-reaml-role va admin-reaml-role,  add composite role voi spring service tren 
+
+=> role service != role reaml  . mot user reaml co the nam tren nhieu service 
+- create sample user : vao muc user > add 2 user : user:user va admin:admin va add role cho no tuong ung 2 cai role vua tao buoc tren 
 

@@ -3,10 +3,8 @@ package com.teamwork.chatbot.entity;
 import lombok.Data;
 
 @Data
-public class User {
+public class UserKeyCloak {
     private String username;
-    private String email;
     private String password;
-    private String lastName;
-    private String firstName;
+    private String role;
 }

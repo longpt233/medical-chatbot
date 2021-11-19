@@ -1,7 +1,5 @@
-package com.teamwork.chatbot.service;
+package com.teamwork.chatbot.service.gateway;
 
-import com.teamwork.chatbot.entity.Ping;
-import com.teamwork.chatbot.repository.PingRepository;
 import lombok.RequiredArgsConstructor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -10,18 +8,12 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class PingService {
+public class CallApiOtherContainerService {
 
     private String imageMedicalUrlBase = "http://medical-module:8083/";
 
-    private final PingRepository pingRepository;
 
-    public Ping readFirst(){
-
-        return pingRepository.findAll().get(0);
-    }
-
-    public String connAnotherContainer(){
+    public String connAnotherContainer() {
         try {
             Document doc = Jsoup.connect(imageMedicalUrlBase)
                     .ignoreContentType(true)
