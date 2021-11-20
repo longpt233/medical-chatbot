@@ -2,11 +2,14 @@ package com.teamwork.chatbot.service.user;
 
 import com.google.gson.Gson;
 import com.teamwork.chatbot.builder.ResponseBuilder;
+import com.teamwork.chatbot.dto.request.ChangeUserProfileForm;
 import com.teamwork.chatbot.dto.response.UserProfile;
+import com.teamwork.chatbot.entity.UserFullProfileMongo;
 import com.teamwork.chatbot.repository.UserRepository;
 import com.teamwork.chatbot.service.auth.AuthKeyCloakService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -22,19 +25,69 @@ public class UserService {
 
     private final Gson gson = new Gson();
 
-    public UserProfile getUserInfo(String accessToken) {
+    public ResponseBuilder getUserInfo(String accessToken) {
+        ResponseBuilder svResponse;
+        ResponseEntity<String> keycloakResponse = authKeyCloakService.verifyUser(accessToken);
+        int serverResponseCode = keycloakResponse.getStatusCodeValue();
+        if(serverResponseCode == 200){
+            UserProfile userProfile = gson.fromJson(keycloakResponse.getBody(), UserProfile.class);
 
-        ResponseEntity<String> response = authKeyCloakService.verifyUser(accessToken);
+            //get user from mongodb with user keycloak id
+            UserFullProfileMongo userFullProfileMongo = userRepository.findUserFullProfileMongoByUserKeycloakId(userProfile.getSub());
+            if(userFullProfileMongo != null){
+                svResponse = new ResponseBuilder.Builder(HttpStatus.OK.value())
+                        .buildMessage("get user information successfully!")
+                        .buildData(userFullProfileMongo)
+                        .build();
+            }else{
+                svResponse = new ResponseBuilder.Builder(HttpStatus.NOT_FOUND.value())
+                        .buildMessage("user not found")
+                        .buildData("")
+                        .build();
+            }
 
-        // TODO : tu cai user tahng key cloak tra ve -> lay ra user trong trong mongo (du tren cai id j j day )
-        // userRepository.getByID ??
+        }else{
+            svResponse = new ResponseBuilder.Builder(serverResponseCode)
+                    .buildMessage(keycloakResponse.getBody())
+                    .buildData("")
+                    .build();
+        }
 
-        return gson.fromJson(response.getBody(), UserProfile.class);
+        return svResponse;
     }
 
-    public ResponseBuilder changeUserProfile(String username, String newFirstName, String newLastName) {
+    public ResponseBuilder changeUserProfile(ChangeUserProfileForm userProfileForm, String accessToken) {
+        ResponseBuilder svResponse;
+        //verify Token
+        ResponseEntity<String> keycloakResponse = authKeyCloakService.verifyUser(accessToken);
+        int serverResponseCode = keycloakResponse.getStatusCodeValue();
+        if(serverResponseCode == 200){
+            UserProfile userProfile = gson.fromJson(keycloakResponse.getBody(), UserProfile.class);
 
-        // TODO : k can access Token a
-        return null;
+            //get user from mongodb with user keycloak id
+            UserFullProfileMongo userMongo = userRepository.findUserFullProfileMongoByUserKeycloakId(userProfile.getSub());
+            if(userMongo != null){
+                userMongo.setAddress(userProfileForm.getAddress());
+                userMongo.setFirstName(userProfileForm.getFirstName());
+                userMongo.setLastName(userProfileForm.getLastName());
+                userRepository.save(userMongo);
+                svResponse = new ResponseBuilder.Builder(HttpStatus.OK.value())
+                        .buildMessage("update user info successfully")
+                        .buildData("")
+                        .build();
+            }else{
+                svResponse = new ResponseBuilder.Builder(HttpStatus.NOT_FOUND.value())
+                        .buildMessage("user not found")
+                        .buildData("")
+                        .build();
+            }
+
+        }else{
+            svResponse = new ResponseBuilder.Builder(serverResponseCode)
+                    .buildMessage(keycloakResponse.getBody())
+                    .buildData("")
+                    .build();
+        }
+        return svResponse;
     }
 }

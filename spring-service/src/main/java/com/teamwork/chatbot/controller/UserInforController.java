@@ -1,6 +1,7 @@
 package com.teamwork.chatbot.controller;
 
 import com.teamwork.chatbot.builder.ResponseBuilder;
+import com.teamwork.chatbot.dto.request.ChangeUserProfileForm;
 import com.teamwork.chatbot.service.user.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,27 +20,22 @@ public class UserInforController {
     @Autowired
     private UserService service;
 
-    //  TODO @RolesAllowed("user-role")       // user nay thi set quuyen o tren keycloak co duoc khong
 
     @GetMapping(value = "/getUserProfile",
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> getUserProfile(@RequestHeader("Authorization") String bearerToken) {
         String accessToken = bearerToken.split(" ")[1];
-        ResponseBuilder response = new ResponseBuilder.Builder(200)
-                .buildMessage("get user information successfully")
-                .buildData(service.getUserInfo(accessToken))
-                .build();
+        ResponseBuilder response = service.getUserInfo(accessToken);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));
     }
 
 
-    // TODO k can acess token a
     @PostMapping(value = "/updateProfile",
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> updateProfile(@RequestParam String username,
-                                                @RequestParam String newFirstName,
-                                                @RequestParam String newLastName) {
-        ResponseBuilder response = service.changeUserProfile(username, newFirstName, newLastName);
+    public ResponseEntity<Object> updateProfile(@RequestHeader("Authorization") String bearerToken,
+                                                @RequestBody ChangeUserProfileForm userProfileForm) {
+        String accessToken = bearerToken.split(" ")[1];
+        ResponseBuilder response = service.changeUserProfile(userProfileForm,accessToken);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));
     }
 

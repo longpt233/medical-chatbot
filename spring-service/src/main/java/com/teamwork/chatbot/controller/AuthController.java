@@ -1,7 +1,9 @@
 package com.teamwork.chatbot.controller;
 
 import com.teamwork.chatbot.builder.ResponseBuilder;
-import com.teamwork.chatbot.entity.UserKeyCloak;
+import com.teamwork.chatbot.dto.request.ChangePasswordForm;
+import com.teamwork.chatbot.dto.response.TokenResponse;
+import com.teamwork.chatbot.entity.RegistrationUserInfo;
 import com.teamwork.chatbot.service.auth.AuthKeyCloakService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,19 +26,29 @@ public class AuthController {
     @PostMapping(value = "/sign-up",
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<String> createUser(@RequestBody UserKeyCloak userKeyCloak) {
-        log.info("User: {}", userKeyCloak);
-        Response response = authKeyCloakService.signup(userKeyCloak);
+    public ResponseEntity<String> createUser(@RequestBody RegistrationUserInfo registrationUserInfo) {
+        log.info("User: {}", registrationUserInfo);
+        Response response = authKeyCloakService.signup(registrationUserInfo);
         return new ResponseEntity<>(HttpStatus.valueOf(response.getStatus()));
     }
-
+    // TODO error when input invalid token: not response as ResponseBuilder Object (code, message, data)
     @PostMapping(value = "/login",
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> login(@RequestParam String username, @RequestParam String password) {
-        ResponseBuilder response = new ResponseBuilder.Builder(200)
-                .buildMessage("login successfully")
-                .buildData(authKeyCloakService.login(username, password))
-                .build();
+        ResponseBuilder response;
+        TokenResponse tokenResponse;
+        try {
+            tokenResponse = authKeyCloakService.login(username,password);
+            response = new ResponseBuilder.Builder(HttpStatus.OK.value())
+                    .buildMessage("login successfully")
+                    .buildData(tokenResponse)
+                    .build();
+        } catch (Exception e) {
+            response = new ResponseBuilder.Builder(HttpStatus.UNAUTHORIZED.value())
+                    .buildMessage("incorrect password")
+                    .buildData("")
+                    .build();
+        }
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));
     }
 
@@ -51,20 +63,28 @@ public class AuthController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> refresh(@RequestHeader("Authorization") String bearerToken) {
         String refreshToken = bearerToken.split(" ")[1];
-        ResponseBuilder response = new ResponseBuilder.Builder(200)
-                .buildMessage("refresh token successfully")
-                .buildData(authKeyCloakService.refreshToken(refreshToken))
-                .build();
+        ResponseBuilder response;
+        try {
+            response = new ResponseBuilder.Builder(200)
+                    .buildMessage("refresh token successfully")
+                    .buildData(authKeyCloakService.refreshToken(refreshToken))
+                    .build();
+        } catch (Exception e) {
+            response = new ResponseBuilder.Builder(HttpStatus.BAD_REQUEST.value())
+                    .buildMessage("refresh token is invalid!")
+                    .buildData("")
+                    .build();
+        }
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));
     }
 
 
     @PostMapping(value = "/update-password",
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> updatePassword(@RequestParam String username,
-                                                 @RequestParam String oldPassword,
-                                                 @RequestParam String newPassword) {
-        ResponseBuilder response = authKeyCloakService.changePassword(username, oldPassword, newPassword);
+    public ResponseEntity<Object> updatePassword(@RequestBody ChangePasswordForm changePasswordForm,
+                                                 @RequestHeader("Authorization") String bearerToken) {
+        String accessToken = bearerToken.split(" ")[1];
+        ResponseBuilder response = authKeyCloakService.changePassword(changePasswordForm, accessToken);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));
     }
 

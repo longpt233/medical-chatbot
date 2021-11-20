@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.security.RolesAllowed;
+
 @RestController
 @RequestMapping("/api/gateway")
 public class ApiGateWayController {
@@ -21,6 +23,7 @@ public class ApiGateWayController {
 
     // call module : phai chay docker len nhe
     @GetMapping("/test")
+    @RolesAllowed("admin")
     public ResponseEntity<String> test(@RequestHeader("Authorization") String bearerToken) {
         String accessToken = bearerToken.split(" ")[1];
         ResponseEntity<String> response = authKeyCloakService.verifyUser(accessToken);

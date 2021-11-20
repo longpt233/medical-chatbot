@@ -4,8 +4,6 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.List;
-
 @Document(collection = "account")
 @Data
 public class UserFullProfileMongo {
@@ -14,4 +12,7 @@ public class UserFullProfileMongo {
     private String userKeycloakId;
     private String email;
     private String username;
+    private String lastName;
+    private String firstName;
+    private String address;
 }

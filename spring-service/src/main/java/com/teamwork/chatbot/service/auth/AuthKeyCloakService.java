@@ -1,18 +1,24 @@
 package com.teamwork.chatbot.service.auth;
 
 import com.google.gson.Gson;
+import com.teamwork.chatbot.adapter.EntityAdapter;
+import com.teamwork.chatbot.adapter.UserAdapter;
 import com.teamwork.chatbot.builder.ResponseBuilder;
+import com.teamwork.chatbot.dto.request.ChangePasswordForm;
 import com.teamwork.chatbot.dto.response.TokenResponse;
 import com.teamwork.chatbot.dto.response.UserProfile;
+import com.teamwork.chatbot.entity.RegistrationUserInfo;
 import com.teamwork.chatbot.entity.UserFullProfileMongo;
-import com.teamwork.chatbot.entity.UserKeyCloak;
+import com.teamwork.chatbot.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.C;
 import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -51,7 +57,13 @@ public class AuthKeyCloakService {
     @Value("${keycloak.credentials.secret}")
     private String keycloakClientSecret;
 
-    private Keycloak getKeycloakInstance() {
+    @Autowired
+    private UserAdapter userAdapter;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    public Keycloak getKeycloakInstance() {
         return Keycloak.getInstance(
                 keycloakUrl,
                 "master",
@@ -60,16 +72,16 @@ public class AuthKeyCloakService {
                 "admin-cli");
     }
 
-    public Response signup(UserKeyCloak userKeyCloak) {
+    public Response signup(RegistrationUserInfo registrationUserInfo) {
 
         // create credentials for UserRepresentation
         CredentialRepresentation credentials = new CredentialRepresentation();
         credentials.setType(CredentialRepresentation.PASSWORD);
-        credentials.setValue(userKeyCloak.getPassword());
+        credentials.setValue(registrationUserInfo.getPassword());
         credentials.setTemporary(false);
 
         UserRepresentation userRepresentation = new UserRepresentation();
-        userRepresentation.setUsername(userKeyCloak.getUsername());
+        userRepresentation.setUsername(registrationUserInfo.getUsername());
         userRepresentation.setEnabled(true);
         userRepresentation.setCredentials(Arrays.asList(credentials));
         userRepresentation.setEnabled(true);
@@ -88,10 +100,20 @@ public class AuthKeyCloakService {
         RoleRepresentation userClientRole = keycloak.realm(keycloakRealm).roles().get("user-role").toRepresentation();
         userResource.roles().realmLevel().add(Arrays.asList(userClientRole));
 
+        //save user into mongodb
+        if(result.getStatusInfo().toString().equals("Created")){
+            UserFullProfileMongo userFullProfileMongo = userAdapter.toMapper(registrationUserInfo);
+            userFullProfileMongo.setUserKeycloakId(userId);
+
+            userRepository.save(userFullProfileMongo);
+        }else{
+            log.error("error when create user with keycloak: {}",result.getStatusInfo());
+        }
+
         return result;
     }
 
-    public TokenResponse login(String username, String password) {
+    public TokenResponse login(String username, String password) throws Exception{
         String loginKeyCloakUrl = keycloakUrl + "realms/"+keycloakRealm +"/protocol/openid-connect/token";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -102,13 +124,14 @@ public class AuthKeyCloakService {
         params.add("username", username);
         params.add("password", password);
         HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(params, headers);
-
+        TokenResponse tokenResponse;
         ResponseEntity<String> response = restTemplate.postForEntity(loginKeyCloakUrl, entity, String.class);
+        tokenResponse = gson.fromJson(response.getBody(), TokenResponse.class);
         log.info("login response: {}", response.getBody());
-        return gson.fromJson(response.getBody(), TokenResponse.class);
+        return tokenResponse;
     }
 
-    public TokenResponse refreshToken(String refreshToken) {
+    public TokenResponse refreshToken(String refreshToken) throws Exception{
         String tokenKeyCloakUrl = keycloakUrl + "realms/"+keycloakRealm + "/protocol/openid-connect/token";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -152,34 +175,46 @@ public class AuthKeyCloakService {
 
 
 
-    public ResponseBuilder changePassword(String username, String oldPassword, String newPassword) {
-
-        // TODO check old nhe @Tuan :D , ma k can auth a
-
+    public ResponseBuilder changePassword(ChangePasswordForm changePasswordForm, String accessToken) {
         ResponseBuilder svResponse;
-        Keycloak keycloak = getKeycloakInstance();
-        Optional<UserRepresentation> user = keycloak.realm(keycloakRealm).users().search(username).stream().filter(
-                u -> u.getUsername().equals(username)
-        ).findFirst();
-        if (user.isPresent()) {
-            CredentialRepresentation credentials = new CredentialRepresentation();
-            credentials.setType(CredentialRepresentation.PASSWORD);
-            credentials.setValue(newPassword);
-            credentials.setTemporary(false);
-            UserRepresentation userRepresentation = user.get();
-            UserResource userResource = keycloak.realm(keycloakRealm).users().get(userRepresentation.getId());
-            userRepresentation.setCredentials(Arrays.asList(credentials));
-            userResource.update(userRepresentation);
-            svResponse = new ResponseBuilder.Builder(200)
-                    .buildMessage("update password successfully")
-                    .buildData("")
-                    .build();
-        } else {
-            svResponse = new ResponseBuilder.Builder(400)
-                    .buildMessage("username not found")
+
+        //verify Token
+        ResponseEntity<String> keycloakResponse = verifyUser(accessToken);
+        int serverResponseCode = keycloakResponse.getStatusCodeValue();
+        if(serverResponseCode == 200){
+            Keycloak keycloak = getKeycloakInstance();
+            UserProfile userProfile = gson.fromJson(keycloakResponse.getBody(), UserProfile.class);
+//            log.info("profile: {}",userProfile);
+
+            //verify old password
+            try {
+                login(userProfile.getPreferred_username(), changePasswordForm.getOldPassword());
+                UserResource userResource = keycloak.realm(keycloakRealm).users().get(userProfile.getSub());
+                CredentialRepresentation credentialRepresentation = new CredentialRepresentation();
+                credentialRepresentation.setType(CredentialRepresentation.PASSWORD);
+                credentialRepresentation.setValue(changePasswordForm.getNewPassword());
+                credentialRepresentation.setTemporary(false);
+                userResource.resetPassword(credentialRepresentation);
+                userResource.logout();
+                svResponse = new ResponseBuilder.Builder(200)
+                        .buildMessage("change password successfully!")
+                        .buildData("")
+                        .build();
+            } catch (Exception e) {
+                svResponse = new ResponseBuilder.Builder(400)
+                        .buildMessage("old password is not match")
+                        .buildData("")
+                        .build();
+            }
+
+
+        }else{
+            svResponse = new ResponseBuilder.Builder(serverResponseCode)
+                    .buildMessage(keycloakResponse.getBody())
                     .buildData("")
                     .build();
         }
+
         return svResponse;
     }
 
