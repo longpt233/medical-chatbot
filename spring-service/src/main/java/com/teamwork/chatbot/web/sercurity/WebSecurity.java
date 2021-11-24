@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
@@ -18,6 +19,8 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(jsr250Enabled = true)
+//   @RoleAllowed  , con khong thi co the set quyen o trong moethod configure cung duoc
 @ComponentScan(basePackageClasses = KeycloakSecurityComponents.class)
 public class WebSecurity extends KeycloakWebSecurityConfigurerAdapter {
 
@@ -29,7 +32,7 @@ public class WebSecurity extends KeycloakWebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public KeycloakSpringBootConfigResolver keycloakConfigResolver() {
+    public KeycloakSpringBootConfigResolver keycloakConfigResolver() {    // for keycloak.json config
         return new KeycloakSpringBootConfigResolver();
     }
 

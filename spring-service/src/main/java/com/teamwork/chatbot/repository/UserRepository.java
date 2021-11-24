@@ -1,8 +1,8 @@
 package com.teamwork.chatbot.repository;
 
-import com.teamwork.chatbot.entity.Account;
+import com.teamwork.chatbot.entity.UserFullProfileMongo;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface UserRepository extends MongoRepository<Account, String> {
-
+public interface UserRepository extends MongoRepository<UserFullProfileMongo, String> {
+    UserFullProfileMongo findUserFullProfileMongoByUserKeycloakId(String userKeycloakId);
 }
