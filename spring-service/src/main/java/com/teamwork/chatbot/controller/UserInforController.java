@@ -23,15 +23,18 @@ public class UserInforController {
 
     @GetMapping(value = "/getUserProfile",
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> getUserProfile(@RequestHeader("Authorization") String bearerToken) {
-        String accessToken = bearerToken.split(" ")[1];
-        ResponseBuilder response = service.getUserInfo(accessToken);
-        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));
+    @RolesAllowed("user-role")   // cai role nay tuong ứng trên client role, không liên quan gì realm role
+    public ResponseEntity<Object> getUserProfile(@RequestHeader String Authorization) {
+        System.out.println("user verified !!" + Authorization);
+//        ResponseBuilder response = service.getUserInfo(accessToken);
+//        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));
+        return ResponseEntity.ok("ok nha");
     }
 
 
     @PostMapping(value = "/updateProfile",
             produces = MediaType.APPLICATION_JSON_VALUE)
+    @RolesAllowed("user-role")
     public ResponseEntity<Object> updateProfile(@RequestHeader("Authorization") String bearerToken,
                                                 @RequestBody ChangeUserProfileForm userProfileForm) {
         String accessToken = bearerToken.split(" ")[1];

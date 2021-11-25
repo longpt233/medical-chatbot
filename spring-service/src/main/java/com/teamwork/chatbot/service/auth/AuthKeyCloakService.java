@@ -120,7 +120,7 @@ public class AuthKeyCloakService {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "password");
         params.add("client_id", keycloakClient);
-        params.add("client_secret", keycloakClientSecret);
+        params.add("client_secret", keycloakClientSecret);     // user khong can biet ma nay nhung service cua minh thi can
         params.add("username", username);
         params.add("password", password);
         HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(params, headers);
@@ -220,15 +220,18 @@ public class AuthKeyCloakService {
 
     /**
      * lấy token call lên keycloak để lấy response
+     * DONT NEED ANYMORE !!! -> add role cho controller
+     *
      * */
     public ResponseEntity<String> verifyUser(String accessToken){
-
-        String userProfileUrl = keycloakUrl + "realms/"+keycloakRealm + "/protocol/openid-connect/userinfo";
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization", "Bearer " + accessToken);
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        return  restTemplate.postForEntity(userProfileUrl, entity, String.class);
-
+//
+//        String userProfileUrl = keycloakUrl + "realms/"+keycloakRealm + "/protocol/openid-connect/userinfo";
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(MediaType.APPLICATION_JSON);
+//        headers.set("Authorization", "Bearer " + accessToken);
+//        HttpEntity<String> entity = new HttpEntity<>(headers);
+//        return  restTemplate.postForEntity(userProfileUrl, entity, String.class);
+//
+        return null;
     }
 }

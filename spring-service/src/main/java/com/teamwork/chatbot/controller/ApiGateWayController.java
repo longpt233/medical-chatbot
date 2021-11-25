@@ -35,6 +35,7 @@ public class ApiGateWayController {
 
     // call module : phai chay docker len nhe
     @GetMapping("/medical-image/predict")
+    @RolesAllowed("user-role")
     public ResponseEntity<String> predict() {
 
         return ResponseEntity.ok(callApiOtherContainerService.connAnotherContainer());
@@ -43,6 +44,7 @@ public class ApiGateWayController {
 
     // call module chatbot
     @GetMapping("/medical-chatbot/chat")
+    @RolesAllowed("user-role")
     public ResponseEntity<String> chat() {
         return ResponseEntity.ok(callApiOtherContainerService.connAnotherContainer());
 

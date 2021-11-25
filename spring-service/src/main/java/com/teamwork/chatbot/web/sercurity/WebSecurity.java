@@ -1,5 +1,6 @@
 package com.teamwork.chatbot.web.sercurity;
 
+import org.keycloak.adapters.KeycloakConfigResolver;
 import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver;
 import org.keycloak.adapters.springsecurity.KeycloakSecurityComponents;
 import org.keycloak.adapters.springsecurity.authentication.KeycloakAuthenticationProvider;
@@ -16,24 +17,25 @@ import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
-
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(jsr250Enabled = true)
-//   @RoleAllowed  , con khong thi co the set quyen o trong moethod configure cung duoc
-@ComponentScan(basePackageClasses = KeycloakSecurityComponents.class)
 public class WebSecurity extends KeycloakWebSecurityConfigurerAdapter {
 
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) {
-        KeycloakAuthenticationProvider authenticationProvider = keycloakAuthenticationProvider();
-        authenticationProvider.setGrantedAuthoritiesMapper(new SimpleAuthorityMapper());
-        auth.authenticationProvider(authenticationProvider);
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        super.configure(http);
+        http.authorizeRequests()
+                .anyRequest()
+                .permitAll();
+        http.csrf().disable();
     }
 
-    @Bean
-    public KeycloakSpringBootConfigResolver keycloakConfigResolver() {    // for keycloak.json config
-        return new KeycloakSpringBootConfigResolver();
+    @Autowired
+    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+        KeycloakAuthenticationProvider keycloakAuthenticationProvider = keycloakAuthenticationProvider();
+        keycloakAuthenticationProvider.setGrantedAuthoritiesMapper(new SimpleAuthorityMapper());
+        auth.authenticationProvider(keycloakAuthenticationProvider);
     }
 
     @Bean
@@ -42,13 +44,8 @@ public class WebSecurity extends KeycloakWebSecurityConfigurerAdapter {
         return new RegisterSessionAuthenticationStrategy(new SessionRegistryImpl());
     }
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        super.configure(http);
-        http.cors().and().csrf().disable();
-        http.authorizeRequests()
-                .antMatchers("/api/*").permitAll()
-                .anyRequest()
-                .permitAll();
+    @Bean
+    public KeycloakConfigResolver KeycloakConfigResolver() {
+        return new KeycloakSpringBootConfigResolver();
     }
 }

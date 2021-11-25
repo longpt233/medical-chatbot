@@ -23,7 +23,7 @@ public class AuthController {
     @Autowired
     private AuthKeyCloakService authKeyCloakService;
 
-    @PostMapping(value = "/sign-up",
+    @PostMapping(value = "/signup",
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<String> createUser(@RequestBody RegistrationUserInfo registrationUserInfo) {
