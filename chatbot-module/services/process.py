@@ -1,6 +1,7 @@
 import math
 from pyvi import ViTokenizer
 import re
+from db import data_collection, data
 
 
 class TfIdf:
@@ -22,7 +23,6 @@ class TfIdf:
         self.documents.append([doc_name, doc_dict])
 
     def similarities(self, list_of_words):
-
         query_dict = {}
         for w in list_of_words:
             query_dict[w] = query_dict.get(w, 0.0) + 1.0
@@ -38,21 +38,34 @@ class TfIdf:
             for k in query_dict:
                 if k in doc_dict:
                     score += (query_dict[k] / self.corpus_dict[k]) + (
-                            doc_dict[k] / self.corpus_dict[k])
-            sims.append([doc[0], -99999 if score == 0 else math.log(score)])
+                        doc_dict[k] / self.corpus_dict[k])
+            sims.append(
+                {'disease': doc[0], 'score': -99999 if score == 0 else math.log(score)})
 
-        sims.sort(key=lambda x: x[1], reverse=True)
+        sims.sort(key=lambda x: x['score'], reverse=True)
 
         return sims
 
 
-def preprocessing(list_symptom):
-    list_symptom = ' '.join(list_symptom)
-    list_symptom = re.sub(
+def preprocessing(list_sentence):
+    '''Input: a list symptom, output: list of normalized words
+    '''
+    sentence = ' '.join(list_sentence)
+    sentence = re.sub(
         r'^[a-zA-Z_ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ]',
-        ' ', list_symptom)
-    list_symptom = re.sub('[?.,!:]', '', list_symptom)
-    list_symptom = list_symptom.lower()
-    list_symptom = ViTokenizer.tokenize(ViTokenizer.tokenize(list_symptom))
-    list_symptom = list_symptom.split()
-    return list_symptom
+        ' ', sentence)
+    sentence = re.sub('[?.,!:]', '', sentence)
+    sentence = sentence.lower()
+    sentence = ViTokenizer.tokenize(ViTokenizer.tokenize(sentence))
+    list_word = sentence.split()
+    return list_word
+
+
+tf_idf = TfIdf()
+for i in range(len(data)):
+    tf_idf.add_document(data[i][0]['van-de'][14:],
+                        preprocessing(data[i][3]['tra-loi']))
+
+
+def symptoms2disease(list_symptom):
+    return list(map(lambda x: x, tf_idf.similarities(preprocessing(list_symptom))))[:10]

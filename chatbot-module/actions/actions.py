@@ -11,8 +11,9 @@ from typing import Any, Text, Dict, List
 
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
-from actions.db import data
-from actions.tfidf import TfIdf, preprocessing
+import requests
+
+URL = 'http://localhost:5000'
 
 
 class ActionDiseaseInfo(Action):
@@ -30,7 +31,7 @@ class ActionDiseaseInfo(Action):
 
         for e in entities:
             # in any function
-            # if e['entity'] == 'type_desease':
+            # if e['entity'] == 'type_disease':
             keywords.append(e['value'])
 
         if len(keywords) != 0:
@@ -39,11 +40,6 @@ class ActionDiseaseInfo(Action):
         dispatcher.utter_message(text=message)
 
         return []
-
-
-tf_idf = TfIdf()
-for i in range(len(data)):
-    tf_idf.add_document(data[i][0]['van-de'][14:], preprocessing(data[i][3]['tra-loi']))
 
 
 class ActionPredictDisease(Action):
@@ -62,10 +58,10 @@ class ActionPredictDisease(Action):
 
         for e in entities:
             keywords.append(e['value'].lower())
-
+        print(keywords)
         if len(keywords) != 0:
-            message = list(map(lambda x: x[0], tf_idf.similarities(keywords)[:10]))
-
+            response = requests.post(URL + '/predict_disease', json={"list_symptom": ["đau đầu"]}).json()
+            message = response[0]['disease']
         dispatcher.utter_message(text=message)
 
         return []
