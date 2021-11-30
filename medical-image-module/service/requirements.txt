@@ -1,0 +1,5 @@
+flask
+keras
+opencv-python
+flask-uploads
+Werkzeug==0.16.0
