@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 
 client = MongoClient(
-    'mongodb+srv://readonly:readonly@cluster-longpt.ocem8.mongodb.net/test')
-db = client['benh']
-data_collection = db['raw_data']
+    'mongodb+srv://admin:admin@cluster0.fm4xh.mongodb.net/test')
+db = client['integrated-db']
+data_collection = db['raw-disease']
 data = [item['cac-van-de-lien-quan'] for item in list(data_collection.find())]

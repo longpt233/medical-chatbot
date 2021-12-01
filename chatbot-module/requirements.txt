@@ -1,6 +1,0 @@
-rasa
-rasa[spacy]
-tensorflow==2.6.1
-keras==2.6.0
-pymongo
-pyvi

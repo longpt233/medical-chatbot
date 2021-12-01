@@ -11,6 +11,7 @@ slots:
   symptom:
     type: list
     influence_conversation: true
-actions:
-- action_disease_info
-- action_predict_disease
+
+# actions:
+# - action_disease_info
+# - action_predict_disease

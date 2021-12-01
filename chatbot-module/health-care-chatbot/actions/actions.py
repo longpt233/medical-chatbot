@@ -51,17 +51,21 @@ class ActionPredictDisease(Action):
             tracker: Tracker,
             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
 
-        message = 'Sorry I don\'t know'
-        keywords = []
-        entities = tracker.latest_message['entities']
-        print(tracker.latest_message)
+        # message = 'Sorry I don\'t know'
+        # keywords = []
+        # entities = tracker.latest_message['entities']
+        # print(tracker.latest_message)
 
-        for e in entities:
-            keywords.append(e['value'].lower())
-        print(keywords)
-        if len(keywords) != 0:
-            response = requests.post(URL + '/predict_disease', json={"list_symptom": ["đau đầu"]}).json()
-            message = response[0]['disease']
-        dispatcher.utter_message(text=message)
+        # for e in entities:
+        #     keywords.append(e['value'].lower())
+        # print(keywords)
+        # if len(keywords) != 0:
+        #     response = requests.post(URL + '/predict_disease', json={"list_symptom": ["đau đầu"]}).json()
+        #     print(f'res: {response}')
+        #     if len(response) == 0:
+        #         message = 'An error occurred'
+        #     else:
+        #         message = response[0]['disease']
+        dispatcher.utter_message(text='predict disease')
 
         return []

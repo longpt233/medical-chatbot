@@ -1,6 +1,7 @@
-import math
 from pyvi import ViTokenizer
+import math
 import re
+
 from db import data_collection, data
 
 
@@ -69,3 +70,10 @@ for i in range(len(data)):
 
 def symptoms2disease(list_symptom):
     return list(map(lambda x: x, tf_idf.similarities(preprocessing(list_symptom))))[:10]
+
+def disease2info(disease):
+    for disease_info in data:
+        name_disease = disease_info[0]['van-de'][14:].lower()
+        if disease.lower() in name_disease:
+            return disease_info[1]['tra-loi']
+
