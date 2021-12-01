@@ -1,65 +1,49 @@
 version: '3.7'
 services:
-    # my-mongodb:
-    #     image: mongo:5.0.3
-    #     container_name: my-mongodb-name
-    #     ports:
-    #         - 27017:27017
-    #     environment:
-    #         MONGO_INITDB_DATABASE: test
-    #         MONGO_INITDB_ROOT_USERNAME: admin
-    #         MONGO_INITDB_ROOT_PASSWORD: admin
-    #     volumes: 
-    #         - ./mongodb/data/db:/data/db
-    #         - ./mongodb/data/configdb:/data/configdb
-    #     networks:
-    #         - cluster-network
+    spring-service:
+        image: spring-service
+        build: 
+            context: ./spring-service
+        container_name: spring-service-name
+        restart: always
+        ports:
+            - "8081:8081"
+        environment:
+            - spring.data.mongodb.database=integrated-db
+            - spring.data.mongodb.uri=mongodb+srv://admin:admin@cluster0.fm4xh.mongodb.net/test
+            - logging.level.org.springframework.data=debug
+            - logging.level.=error
+            - server.port=8081
 
-    # spring-service:
-    #     image: spring-service
-    #     build: 
-    #         context: ./spring-service
-    #     container_name: spring-service-name
-    #     restart: always
-    #     ports:
-    #         - "8081:8081"
-    #     environment:
-    #         - spring.data.mongodb.database=test-db
-    #         # - spring.data.mongodb.uri=mongodb://admin:admin@my-mongodb:27017/test    # for local mongo  
-    #         - spring.data.mongodb.uri=mongodb+srv://readonly:readonly@cluster-longpt.ocem8.mongodb.net/test
-    #         - logging.level.org.springframework.data=debug
-    #         - logging.level.=error
-    #         - server.port=8081
+            # PRODUCT SETINGS 
+            # keycloak setting
+            - is.keycloak.admin.user=admin
+            - is.keycloak.admin.password=admin
+            - keycloak.realm=integrated-realm
+            - keycloak.auth-server-url=http://keycloak-service:8080/auth/     # chu y ten service 
+            - keycloak.ssl-required=external
+            - keycloak.resource=spring-service
+            - keycloak.use-resource-role-mappings=true
+            - keycloak.bearer-only=true
+            - keycloak.credentials.secret=78515593-f8cf-4747-b7db-e328d1424fb1
 
-    #         # PRODUCT SETINGS 
-    #         # keycloak setting
-    #         - is.keycloak.admin.user=admin
-    #         - is.keycloak.admin.password=admin
-    #         - keycloak.realm=tichhop-realm
-    #         - keycloak.auth-server-url=http://keycloak-service:8080/auth/     # chu y ten service 
-    #         - keycloak.ssl-required=external
-    #         - keycloak.resource=spring-service
-    #         - keycloak.use-resource-role-mappings=true
-    #         - keycloak.bearer-only=true
-    #         - keycloak.credentials.secret=6bad7edf-61d0-450e-afa7-f8fd5e8bfa41
+            # another container root api
+            # - chatbot.chat=http://chatbot-module:8xxx
+            - medical-image.predict=http://medical-module:8083
 
-    #         # # another container root api
-    #         # - chatbot.chat=http://chatbot-module:8xxx
-    #         # - medical-image.predict=http://medical-module:8xxx
+        networks:
+            - cluster-network
 
-    #     networks:
-    #         - cluster-network
-        # depends_on:
-            # - my-mongodb
-
-    # medical-module:
-    #     image: medical-module:v1
-    #     container_name: medical-module-name
-    #     restart: always
-    #     ports:
-    #         - "8083:8083"
-    #     networks:
-    #         - cluster-network
+    medical-module:
+        image: medical-module
+        build: 
+            context: ./medical-image-module/service
+        container_name: medical-module-name
+        restart: always
+        ports:
+            - "8083:8083"
+        networks:
+            - cluster-network
 
     keycloak-service:
         image: quay.io/keycloak/keycloak:latest

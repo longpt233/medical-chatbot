@@ -1,13 +1,13 @@
 package com.teamwork.chatbot.controller;
 
+import com.teamwork.chatbot.builder.ResponseBuilder;
 import com.teamwork.chatbot.service.auth.AuthKeyCloakService;
 import com.teamwork.chatbot.service.gateway.CallApiOtherContainerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.security.RolesAllowed;
 
@@ -22,31 +22,22 @@ public class ApiGateWayController {
     private AuthKeyCloakService authKeyCloakService;
 
     // call module : phai chay docker len nhe
-    @GetMapping("/test")
-    @RolesAllowed("admin")
-    public ResponseEntity<String> test(@RequestHeader("Authorization") String bearerToken) {
+    @GetMapping(value = "/medical-image/predict",
+    produces = MediaType.IMAGE_GIF_VALUE)
+    public Object predict(@RequestParam("Authorization") String bearerToken,@RequestParam("photo") MultipartFile photo) {
         String accessToken = bearerToken.split(" ")[1];
-        ResponseEntity<String> response = authKeyCloakService.verifyUser(accessToken);
-
-        System.out.println(response);
-        return ResponseEntity.ok("oki nha ");
-
+        ResponseBuilder svResponse = callApiOtherContainerService.uploadImage(photo,accessToken);
+        if(svResponse.getCode() == 200){
+            return svResponse.getData();
+        }
+        else return "Error when upload image: " + svResponse.getMessage();
     }
 
-    // call module : phai chay docker len nhe
-    @GetMapping("/medical-image/predict")
-    @RolesAllowed("user-role")
-    public ResponseEntity<String> predict() {
-
-        return ResponseEntity.ok(callApiOtherContainerService.connAnotherContainer());
-
-    }
-
-    // call module chatbot
-    @GetMapping("/medical-chatbot/chat")
-    @RolesAllowed("user-role")
-    public ResponseEntity<String> chat() {
-        return ResponseEntity.ok(callApiOtherContainerService.connAnotherContainer());
-
-    }
+//    // call module chatbot
+//    @GetMapping("/medical-chatbot/chat")
+//    @RolesAllowed("user-role")
+//    public ResponseEntity<String> chat() {
+//        return ResponseEntity.ok(callApiOtherContainerService.connAnotherContainer());
+//
+//    }
 }

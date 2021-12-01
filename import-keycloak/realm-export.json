@@ -1,6 +1,6 @@
 {
-  "id": "Tichhop-Reaml",
-  "realm": "Tichhop-Reaml",
+  "id": "integrated-realm",
+  "realm": "integrated-realm",
   "notBefore": 0,
   "defaultSignatureAlgorithm": "RS256",
   "revokeRefreshToken": false,
@@ -47,7 +47,7 @@
     "realm": [
       {
         "id": "bfa64d78-547f-4c1e-b883-fe3db24aa0b9",
-        "name": "default-roles-tichhop-reaml",
+        "name": "default-roles-integrated-realm",
         "description": "${role_default-roles}",
         "composite": true,
         "composites": {
@@ -63,7 +63,7 @@
           }
         },
         "clientRole": false,
-        "containerId": "Tichhop-Reaml",
+        "containerId": "integrated-realm",
         "attributes": {}
       },
       {
@@ -72,7 +72,7 @@
         "description": "${role_uma_authorization}",
         "composite": false,
         "clientRole": false,
-        "containerId": "Tichhop-Reaml",
+        "containerId": "integrated-realm",
         "attributes": {}
       },
       {
@@ -80,7 +80,7 @@
         "name": "user-role",
         "composite": false,
         "clientRole": false,
-        "containerId": "Tichhop-Reaml",
+        "containerId": "integrated-realm",
         "attributes": {}
       },
       {
@@ -89,7 +89,7 @@
         "description": "${role_offline-access}",
         "composite": false,
         "clientRole": false,
-        "containerId": "Tichhop-Reaml",
+        "containerId": "integrated-realm",
         "attributes": {}
       },
       {
@@ -97,7 +97,7 @@
         "name": "admin-role",
         "composite": false,
         "clientRole": false,
-        "containerId": "Tichhop-Reaml",
+        "containerId": "integrated-realm",
         "attributes": {}
       }
     ],
@@ -413,11 +413,11 @@
   "groups": [],
   "defaultRole": {
     "id": "bfa64d78-547f-4c1e-b883-fe3db24aa0b9",
-    "name": "default-roles-tichhop-reaml",
+    "name": "default-roles-integrated-realm",
     "description": "${role_default-roles}",
     "composite": true,
     "clientRole": false,
-    "containerId": "Tichhop-Reaml"
+    "containerId": "integrated-realm"
   },
   "requiredCredentials": [
     "password"
@@ -480,13 +480,13 @@
       "clientId": "account",
       "name": "${client_account}",
       "rootUrl": "${authBaseUrl}",
-      "baseUrl": "/realms/Tichhop-Reaml/account/",
+      "baseUrl": "/realms/integrated-realm/account/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "/realms/Tichhop-Reaml/account/*"
+        "/realms/integrated-realm/account/*"
       ],
       "webOrigins": [],
       "notBefore": 0,
@@ -521,13 +521,13 @@
       "clientId": "account-console",
       "name": "${client_account-console}",
       "rootUrl": "${authBaseUrl}",
-      "baseUrl": "/realms/Tichhop-Reaml/account/",
+      "baseUrl": "/realms/integrated-realm/account/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "/realms/Tichhop-Reaml/account/*"
+        "/realms/integrated-realm/account/*"
       ],
       "webOrigins": [],
       "notBefore": 0,
@@ -685,13 +685,13 @@
       "clientId": "security-admin-console",
       "name": "${client_security-admin-console}",
       "rootUrl": "${authAdminUrl}",
-      "baseUrl": "/admin/Tichhop-Reaml/console/",
+      "baseUrl": "/admin/integrated-realm/console/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "/admin/Tichhop-Reaml/console/*"
+        "/admin/integrated-realm/console/*"
       ],
       "webOrigins": [
         "+"

@@ -1,6 +1,9 @@
-FROM python:3
+FROM tensorflow/tensorflow:latest
 
 WORKDIR /usr/src/app
+
+RUN apt-get update -y
+RUN apt-get install ffmpeg libsm6 libxext6  -y
 
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt

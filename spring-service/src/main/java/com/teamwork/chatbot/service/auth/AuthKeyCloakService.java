@@ -104,7 +104,6 @@ public class AuthKeyCloakService {
         if(result.getStatusInfo().toString().equals("Created")){
             UserFullProfileMongo userFullProfileMongo = userAdapter.toMapper(registrationUserInfo);
             userFullProfileMongo.setUserKeycloakId(userId);
-
             userRepository.save(userFullProfileMongo);
         }else{
             log.error("error when create user with keycloak: {}",result.getStatusInfo());
@@ -113,7 +112,7 @@ public class AuthKeyCloakService {
         return result;
     }
 
-    public TokenResponse login(String username, String password) throws Exception{
+    public TokenResponse login(String username, String password){
         String loginKeyCloakUrl = keycloakUrl + "realms/"+keycloakRealm +"/protocol/openid-connect/token";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);

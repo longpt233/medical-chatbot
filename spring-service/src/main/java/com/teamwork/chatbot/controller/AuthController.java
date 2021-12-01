@@ -37,18 +37,13 @@ public class AuthController {
     public ResponseEntity<Object> login(@RequestParam String username, @RequestParam String password) {
         ResponseBuilder response;
         TokenResponse tokenResponse;
-        try {
-            tokenResponse = authKeyCloakService.login(username,password);
-            response = new ResponseBuilder.Builder(HttpStatus.OK.value())
-                    .buildMessage("login successfully")
-                    .buildData(tokenResponse)
-                    .build();
-        } catch (Exception e) {
-            response = new ResponseBuilder.Builder(HttpStatus.UNAUTHORIZED.value())
-                    .buildMessage("incorrect password")
-                    .buildData("")
-                    .build();
-        }
+
+        tokenResponse = authKeyCloakService.login(username,password);
+        response = new ResponseBuilder.Builder(HttpStatus.OK.value())
+                .buildMessage("login successfully")
+                .buildData(tokenResponse)
+                .build();
+
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));
     }
 
