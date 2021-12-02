@@ -1,6 +1,7 @@
 package com.teamwork.chatbot.service.gateway;
 
 import com.teamwork.chatbot.builder.ResponseBuilder;
+import com.teamwork.chatbot.dto.request.MedicalChatForm;
 import com.teamwork.chatbot.service.auth.AuthKeyCloakService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,9 @@ public class CallApiOtherContainerService {
 
     @Value("${medical-image.predict}")
     private String imageMedicalUrlBase;
+
+    @Value("${chatbot.chat}")
+    private String medicalChatbotUrlBase;
 
     @Autowired
     private AuthKeyCloakService authKeyCloakService;
@@ -56,15 +60,43 @@ public class CallApiOtherContainerService {
             HttpEntity<MultiValueMap<String, Object>> entity = new HttpEntity<>(params,headers);
             ResponseEntity<byte[]> response = restTemplate.exchange(url, HttpMethod.POST, entity,byte[].class);
             svResponse = new ResponseBuilder.Builder(200)
-                    .buildMessage("success")
+                    .buildMessage("upload and detect image successfully!")
                     .buildData(response.getBody())
                     .build();
         }else{
             svResponse = new ResponseBuilder.Builder(serverResponseCode)
-                    .buildMessage("keycloakResponse.getBody()")
-                    .buildData("")
+                    .buildMessage("User is not verified!")
+                    .buildData(keycloakResponse.getBody())
                     .build();
         }
+        return svResponse;
+    }
+
+    public ResponseBuilder medicalChat(String accessToken, MedicalChatForm message){
+        ResponseBuilder svResponse;
+        //verify Token
+        ResponseEntity<String> keycloakResponse = authKeyCloakService.verifyUser(accessToken);
+        int serverResponseCode = keycloakResponse.getStatusCodeValue();
+        if(serverResponseCode == 200){
+            String url = medicalChatbotUrlBase + "/medical-chatbot/chat";
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+            params.add("content", message.getMessage());
+
+            HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(params, headers);
+            ResponseEntity<Object> response = restTemplate.postForEntity(url,entity,Object.class);
+            svResponse = new ResponseBuilder.Builder(200)
+                    .buildMessage("chat success")
+                    .buildData(response.getBody())
+                    .build();
+        }else{
+            svResponse = new ResponseBuilder.Builder(serverResponseCode)
+                    .buildMessage("User is not verified!")
+                    .buildData(keycloakResponse.getBody())
+                    .build();
+        }
+
         return svResponse;
     }
 

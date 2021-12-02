@@ -217,20 +217,12 @@ public class AuthKeyCloakService {
         return svResponse;
     }
 
-    /**
-     * lấy token call lên keycloak để lấy response
-     * DONT NEED ANYMORE !!! -> add role cho controller
-     *
-     * */
     public ResponseEntity<String> verifyUser(String accessToken){
-//
-//        String userProfileUrl = keycloakUrl + "realms/"+keycloakRealm + "/protocol/openid-connect/userinfo";
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.setContentType(MediaType.APPLICATION_JSON);
-//        headers.set("Authorization", "Bearer " + accessToken);
-//        HttpEntity<String> entity = new HttpEntity<>(headers);
-//        return  restTemplate.postForEntity(userProfileUrl, entity, String.class);
-//
-        return null;
+        String userProfileUrl = keycloakUrl + "realms/"+keycloakRealm + "/protocol/openid-connect/userinfo";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", "Bearer " + accessToken);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        return  restTemplate.postForEntity(userProfileUrl, entity, String.class);
     }
 }

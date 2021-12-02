@@ -22,10 +22,10 @@ def response():
         URL_RASA + '/model/parse', json={"text": data["content"]}).json()
     rep = []
     if response["intent"]["name"] == 'predict_disease':
-        rep.extend(predict_disease(response))
+        rep.append(predict_disease(response))
     elif response["intent"]["name"] == 'disease_info':
-        rep.extend(get_disease_info(response))
-
+        rep = get_disease_info(response)
+        
     return jsonify({'response': rep}), 200
 
 

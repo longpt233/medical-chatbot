@@ -1,9 +1,11 @@
 package com.teamwork.chatbot.controller;
 
 import com.teamwork.chatbot.builder.ResponseBuilder;
+import com.teamwork.chatbot.dto.request.MedicalChatForm;
 import com.teamwork.chatbot.service.auth.AuthKeyCloakService;
 import com.teamwork.chatbot.service.gateway.CallApiOtherContainerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +26,7 @@ public class ApiGateWayController {
     // call module : phai chay docker len nhe
     @GetMapping(value = "/medical-image/predict",
     produces = MediaType.IMAGE_GIF_VALUE)
-    public Object predict(@RequestParam("Authorization") String bearerToken,@RequestParam("photo") MultipartFile photo) {
+    public Object predict(@RequestHeader("Authorization") String bearerToken,@RequestParam("photo") MultipartFile photo) {
         String accessToken = bearerToken.split(" ")[1];
         ResponseBuilder svResponse = callApiOtherContainerService.uploadImage(photo,accessToken);
         if(svResponse.getCode() == 200){
@@ -34,10 +36,11 @@ public class ApiGateWayController {
     }
 
 //    // call module chatbot
-//    @GetMapping("/medical-chatbot/chat")
-//    @RolesAllowed("user-role")
-//    public ResponseEntity<String> chat() {
-//        return ResponseEntity.ok(callApiOtherContainerService.connAnotherContainer());
-//
-//    }
+    @PostMapping("/medical-chatbot/chat")
+    public ResponseEntity<Object> medicalChat(@RequestHeader("Authorization") String bearerToken,
+                                              @RequestBody MedicalChatForm message) {
+        String accessToken = bearerToken.split(" ")[1];
+        ResponseBuilder svResponse = callApiOtherContainerService.medicalChat(accessToken, message);
+        return new ResponseEntity<>(svResponse, HttpStatus.valueOf(svResponse.getCode()));
+    }
 }
