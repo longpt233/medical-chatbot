@@ -9,13 +9,15 @@ services:
         ports:
             - "8081:8081"
         environment:
+            # database
             - spring.data.mongodb.database=integrated-db
             - spring.data.mongodb.uri=mongodb+srv://admin:admin@cluster0.fm4xh.mongodb.net/test
+
+            # spring
             - logging.level.org.springframework.data=debug
             - logging.level.=error
             - server.port=8081
 
-            # PRODUCT SETINGS 
             # keycloak setting
             - is.keycloak.admin.user=admin
             - is.keycloak.admin.password=admin
@@ -25,11 +27,11 @@ services:
             - keycloak.resource=spring-service
             - keycloak.use-resource-role-mappings=true
             - keycloak.bearer-only=true
-            - keycloak.credentials.secret=78515593-f8cf-4747-b7db-e328d1424fb1
+            - keycloak.credentials.secret=3cbad855-2016-4629-8c98-89dcf7591e8b # do not repalce. change in json > find client secret
 
             # another container root api
-            # - chatbot.chat=http://chatbot-module:8xxx
-            - medical-image.predict=http://medical-module:8083
+            - chatbot.chat=http://chatbot-service-module-name:5000
+            - medical-image.predict=http://medical-module-name:8083
 
         networks:
             - cluster-network
@@ -45,15 +47,39 @@ services:
         networks:
             - cluster-network
 
+    chatbot-rasa-module:
+        image: chatbot-module
+        build: 
+            context: ./chatbot-module/health-care-chatbot
+        container_name: chatbot-rasa-module-name
+        restart: always
+        ports:
+            - "5005:5005"  # rasa chay cong 5005
+        networks:
+            - cluster-network
+
+    chatbot-service-module:
+        image: chatbot-service-module
+        build: 
+            context: ./chatbot-module/health-care-services
+        container_name: chatbot-service-module-name
+        environment:
+            URL_CHATBOT_RASA: http://chatbot-rasa-module-name:5005   # same name service 
+        restart: always
+        ports:
+            - "5000:5000"
+        networks:
+            - cluster-network
+
     keycloak-service:
         image: quay.io/keycloak/keycloak:latest
-        container_name: keycloak-service-name
+        container_name: keycloak-service-name 
         environment:
             KEYCLOAK_USER: admin
             KEYCLOAK_PASSWORD: admin
             KEYCLOAK_IMPORT: /opt/jboss/keycloak/imports/realm-export.json -Dkeycloak.profile.feature.upload_scripts=enabled  
         ports:
-            -   "8080:8080"
+            - "8080:8080"
         volumes:
             - ./import-keycloak:/opt/jboss/keycloak/imports
         restart: always

@@ -1,9 +1,11 @@
 from flask import Flask, request, jsonify
 import requests
+import logging
 
 from process import disease2info, preprocessing, symptoms2disease
 
-URL_RASA = 'http://localhost:5005'
+import os
+URL_RASA = os.environ['URL_CHATBOT_RASA']  # http://chatbot-rasa-module-name:5005, call ok 
 
 
 app = Flask(__name__)
@@ -11,9 +13,13 @@ app = Flask(__name__)
 
 @app.route('/medical-chatbot/chat', methods=['POST'])
 def response():
-    data = request.get_json()
+    data = request.get_json(silent=True)
+
+    app.logger.info('testing info log' ,data)
+    app.logger.info(data)
+
     response = requests.post(
-        URL_RASA + '/model/parse', json={"text": data["content"][1:]}).json()
+        URL_RASA + '/model/parse', json={"text": data["content"]}).json()
     rep = []
     if response["intent"]["name"] == 'predict_disease':
         rep.extend(predict_disease(response))
@@ -36,4 +42,4 @@ def get_disease_info(response):
     return list_info
 
 if __name__ == '__main__':
-    app.run(port=5000, host='0.0.0.0')
+    app.run(port=5000, host='0.0.0.0',debug=True)
