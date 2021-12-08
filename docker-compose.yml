@@ -32,6 +32,7 @@ services:
             # another container root api
             - chatbot.chat=http://chatbot-service-module-name:5000
             - medical-image.predict=http://medical-module-name:8083
+            - covid.info=http://covid-module-name:5006
 
         networks:
             - cluster-network
@@ -68,6 +69,17 @@ services:
         restart: always
         ports:
             - "5000:5000"
+        networks:
+            - cluster-network
+
+    covid-module:
+        image: covid-module
+        build: 
+            context: ./covid-module
+        container_name: covid-module-name
+        restart: always
+        ports:
+            - "5006:5006"
         networks:
             - cluster-network
 

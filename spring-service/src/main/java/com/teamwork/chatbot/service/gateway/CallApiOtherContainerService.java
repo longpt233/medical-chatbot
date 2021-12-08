@@ -1,5 +1,7 @@
 package com.teamwork.chatbot.service.gateway;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.teamwork.chatbot.builder.ResponseBuilder;
 import com.teamwork.chatbot.dto.request.MedicalChatForm;
 import com.teamwork.chatbot.service.auth.AuthKeyCloakService;
@@ -28,10 +30,14 @@ public class CallApiOtherContainerService {
     @Value("${chatbot.chat}")
     private String medicalChatbotUrlBase;
 
+    @Value("${covid.info}")
+    private String covidAPIUrl;
+
     @Autowired
     private AuthKeyCloakService authKeyCloakService;
 
     private final RestTemplate restTemplate = new RestTemplate();
+    private final Gson gson = new Gson();
 
     public String connAnotherContainer() {
         try {
@@ -97,6 +103,27 @@ public class CallApiOtherContainerService {
                     .build();
         }
 
+        return svResponse;
+    }
+
+    public ResponseBuilder getCovidInfo(String accessToken){
+        ResponseBuilder svResponse;
+        //verify Token
+        ResponseEntity<String> keycloakResponse = authKeyCloakService.verifyUser(accessToken);
+        int serverResponseCode = keycloakResponse.getStatusCodeValue();
+        if(serverResponseCode == 200){
+            String covidInfoUrl = covidAPIUrl + "/covid-info";
+            ResponseEntity<Object> response = restTemplate.getForEntity(covidInfoUrl, Object.class);
+            svResponse = new ResponseBuilder.Builder(200)
+                    .buildMessage("get covid info successfully!")
+                    .buildData(response.getBody())
+                    .build();
+        }else{
+            svResponse = new ResponseBuilder.Builder(serverResponseCode)
+                    .buildMessage("User is not verified!")
+                    .buildData(keycloakResponse.getBody())
+                    .build();
+        }
         return svResponse;
     }
 
