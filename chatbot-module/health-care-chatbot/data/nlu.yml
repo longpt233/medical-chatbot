@@ -9,3 +9,8 @@ nlu:
     - Tôi bị [đau đầu](symptom) là bị bệnh gì?
     - [Mất ngủ](symptom) có phải là bệnh không?
     - [Hoa mắt](symptom), [chóng mặt](symptom) là dấu hiệu của bệnh gì?
+- intent: ask_covid_total_case
+  examples: |
+    - hôm nay có bao nhiêu ca covid ? 
+    - tình hình covid hôm nay ?  
+

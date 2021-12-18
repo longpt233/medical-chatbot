@@ -5,13 +5,14 @@ session_config:
 intents:
 - disease_info
 - predict_disease
-#entities:
-#- loai_giay_to
+- ask_covid_total_case
+
 slots:
   symptom:
     type: list
     influence_conversation: true
 
-# actions:
-# - action_disease_info
-# - action_predict_disease
+actions:
+- action_disease_info
+- action_predict_disease
+- action_ask_covid_total_case

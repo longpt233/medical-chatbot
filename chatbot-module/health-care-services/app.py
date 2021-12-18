@@ -1,12 +1,11 @@
 from flask import Flask, request, jsonify
 import requests
 import logging
-
 from process import disease2info, preprocessing, symptoms2disease
-
 import os
-URL_RASA = os.environ['URL_CHATBOT_RASA']  # http://chatbot-rasa-module-name:5005, call ok 
 
+URL_RASA = os.environ['URL_CHATBOT_RASA']  # http://chatbot-rasa-module-name:5005, call ok 
+# URL_RASA ="http://localhost:5005"  # for dev 
 
 app = Flask(__name__)
 
@@ -25,6 +24,8 @@ def response():
         rep.append(predict_disease(response))
     elif response["intent"]["name"] == 'disease_info':
         rep = get_disease_info(response)
+    elif response["intent"]["name"] == 'ask_covid_total_case':
+        rep = get_total_case()
         
     return jsonify({'response': rep}), 200
 
@@ -40,6 +41,13 @@ def get_disease_info(response):
     list_symptom = response['entities'][0]['value'].lower()
     list_info = disease2info(list_symptom)
     return list_info
+
+def get_total_case():
+    
+    res_covid = requests.post('https://static.pipezero.com/covid/data.json')
+    
+    return res_covid.json()["total"]["internal"]
+
 
 if __name__ == '__main__':
     app.run(port=5000, host='0.0.0.0',debug=True)

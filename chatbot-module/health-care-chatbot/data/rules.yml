@@ -11,3 +11,8 @@ rules:
   steps:
   - intent: predict_disease
   - action: action_predict_disease
+
+- rule: lấy tổng số ca bệnh hôm nay
+  steps:
+  - intent: ask_covid_total_case
+  - action: action_ask_covid_total_case
