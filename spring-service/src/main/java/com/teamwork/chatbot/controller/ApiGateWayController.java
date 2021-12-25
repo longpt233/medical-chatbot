@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.security.RolesAllowed;
+import java.sql.Date;
 
 @RestController
 @RequestMapping("/api/gateway")
@@ -44,10 +45,19 @@ public class ApiGateWayController {
         return new ResponseEntity<>(svResponse, HttpStatus.valueOf(svResponse.getCode()));
     }
 
-    @GetMapping("/covid-info")
-    public ResponseEntity<Object> getCovidInformation(@RequestHeader("Authorization") String bearerToken){
+    @GetMapping("/covid-overview")
+    public ResponseEntity<Object> getCovidOverview(@RequestHeader("Authorization") String bearerToken,
+                                                   @RequestParam String time){
         String accessToken = bearerToken.split(" ")[1];
-        ResponseBuilder svResponse = callApiOtherContainerService.getCovidInfo(accessToken);
+        ResponseBuilder svResponse = callApiOtherContainerService.getCovidOverviewEveryWeek(accessToken, time);
+        return new ResponseEntity<>(svResponse, HttpStatus.valueOf(svResponse.getCode()));
+    }
+    @GetMapping("/covid-detail")
+    public ResponseEntity<Object> getCovidDetailInProvince(@RequestHeader("Authorization") String bearerToken,
+                                                           @RequestParam String time,
+                                                           @RequestParam String provinceName){
+        String accessToken = bearerToken.split(" ")[1];
+        ResponseBuilder svResponse = callApiOtherContainerService.getCovidDetailInProvince(accessToken, provinceName, time);
         return new ResponseEntity<>(svResponse, HttpStatus.valueOf(svResponse.getCode()));
     }
 }

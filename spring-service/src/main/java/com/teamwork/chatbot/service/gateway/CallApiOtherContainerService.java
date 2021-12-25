@@ -4,6 +4,11 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.teamwork.chatbot.builder.ResponseBuilder;
 import com.teamwork.chatbot.dto.request.MedicalChatForm;
+import com.teamwork.chatbot.entity.CovidDetailEveryDay;
+import com.teamwork.chatbot.entity.CovidOverviewEveryWeek;
+import com.teamwork.chatbot.entity.ProvinceCovidInfo;
+import com.teamwork.chatbot.repository.CovidDetailRepository;
+import com.teamwork.chatbot.repository.CovidOverviewRepository;
 import com.teamwork.chatbot.service.auth.AuthKeyCloakService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +22,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.sql.Date;
 
 
 @Service
@@ -35,6 +42,12 @@ public class CallApiOtherContainerService {
 
     @Autowired
     private AuthKeyCloakService authKeyCloakService;
+
+    @Autowired
+    private CovidOverviewRepository covidOverviewRepository;
+
+    @Autowired
+    private CovidDetailRepository covidDetailRepository;
 
     private final RestTemplate restTemplate = new RestTemplate();
     private final Gson gson = new Gson();
@@ -106,18 +119,58 @@ public class CallApiOtherContainerService {
         return svResponse;
     }
 
-    public ResponseBuilder getCovidInfo(String accessToken){
+    public ResponseBuilder getCovidOverviewEveryWeek(String accessToken, String time){
         ResponseBuilder svResponse;
         //verify Token
         ResponseEntity<String> keycloakResponse = authKeyCloakService.verifyUser(accessToken);
         int serverResponseCode = keycloakResponse.getStatusCodeValue();
         if(serverResponseCode == 200){
-            String covidInfoUrl = covidAPIUrl + "/covid-info";
-            ResponseEntity<Object> response = restTemplate.getForEntity(covidInfoUrl, Object.class);
-            svResponse = new ResponseBuilder.Builder(200)
-                    .buildMessage("get covid info successfully!")
-                    .buildData(response.getBody())
+            CovidOverviewEveryWeek overview = covidOverviewRepository.findCovidOverviewEveryWeeksByTime(time);
+            if(overview != null){
+                svResponse = new ResponseBuilder.Builder(200)
+                        .buildMessage("Get covid overview in this time successfully!")
+                        .buildData(overview)
+                        .build();
+            }else{
+                svResponse = new ResponseBuilder.Builder(404)
+                        .buildMessage("Can not get data overview in this time!")
+                        .buildData("")
+                        .build();
+            }
+        }else{
+            svResponse = new ResponseBuilder.Builder(serverResponseCode)
+                    .buildMessage("User is not verified!")
+                    .buildData(keycloakResponse.getBody())
                     .build();
+        }
+        return svResponse;
+    }
+
+    public ResponseBuilder getCovidDetailInProvince(String accessToken, String provinceName, String time){
+        ResponseBuilder svResponse;
+        //verify Token
+        ResponseEntity<String> keycloakResponse = authKeyCloakService.verifyUser(accessToken);
+        int serverResponseCode = keycloakResponse.getStatusCodeValue();
+        if(serverResponseCode == 200){
+            CovidDetailEveryDay detailEveryDay = covidDetailRepository.findCovidDetailEveryDayByTime(time);
+            if(detailEveryDay != null){
+                ProvinceCovidInfo[] detailProvinces = detailEveryDay.getLocations();
+                ProvinceCovidInfo rs = new ProvinceCovidInfo();
+                for(ProvinceCovidInfo p: detailProvinces){
+                    if(p.getName().equals(provinceName)){
+                        rs = p;
+                    }
+                }
+                svResponse = new ResponseBuilder.Builder(200)
+                        .buildMessage("Get covid detail in "  +provinceName+ " in this time successfully!")
+                        .buildData(rs)
+                        .build();
+            }else{
+                svResponse = new ResponseBuilder.Builder(404)
+                        .buildMessage("Can not get data detail in this time!")
+                        .buildData("")
+                        .build();
+            }
         }else{
             svResponse = new ResponseBuilder.Builder(serverResponseCode)
                     .buildMessage("User is not verified!")
