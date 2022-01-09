@@ -46,18 +46,15 @@ public class ApiGateWayController {
     }
 
     @GetMapping("/covid-overview")
-    public ResponseEntity<Object> getCovidOverview(@RequestHeader("Authorization") String bearerToken,
-                                                   @RequestParam String time){
+    public ResponseEntity<Object> getCovidOverview(@RequestHeader("Authorization") String bearerToken){
         String accessToken = bearerToken.split(" ")[1];
-        ResponseBuilder svResponse = callApiOtherContainerService.getCovidOverviewEveryWeek(accessToken, time);
+        ResponseBuilder svResponse = callApiOtherContainerService.getCovidOverviewEveryWeek(accessToken);
         return new ResponseEntity<>(svResponse, HttpStatus.valueOf(svResponse.getCode()));
     }
     @GetMapping("/covid-detail")
-    public ResponseEntity<Object> getCovidDetailInProvince(@RequestHeader("Authorization") String bearerToken,
-                                                           @RequestParam String time,
-                                                           @RequestParam String provinceName){
+    public ResponseEntity<Object> getCovidDetailInProvince(@RequestHeader("Authorization") String bearerToken){
         String accessToken = bearerToken.split(" ")[1];
-        ResponseBuilder svResponse = callApiOtherContainerService.getCovidDetailInProvince(accessToken, provinceName, time);
+        ResponseBuilder svResponse = callApiOtherContainerService.getCovidDetailInProvince(accessToken);
         return new ResponseEntity<>(svResponse, HttpStatus.valueOf(svResponse.getCode()));
     }
 }

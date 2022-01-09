@@ -2,6 +2,8 @@ package com.teamwork.chatbot.service.gateway;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonReader;
 import com.teamwork.chatbot.builder.ResponseBuilder;
 import com.teamwork.chatbot.dto.request.MedicalChatForm;
 import com.teamwork.chatbot.entity.CovidDetailEveryDay;
@@ -119,24 +121,30 @@ public class CallApiOtherContainerService {
         return svResponse;
     }
 
-    public ResponseBuilder getCovidOverviewEveryWeek(String accessToken, String time){
+    public ResponseBuilder getCovidOverviewEveryWeek(String accessToken){
         ResponseBuilder svResponse;
         //verify Token
         ResponseEntity<String> keycloakResponse = authKeyCloakService.verifyUser(accessToken);
         int serverResponseCode = keycloakResponse.getStatusCodeValue();
         if(serverResponseCode == 200){
-            CovidOverviewEveryWeek overview = covidOverviewRepository.findCovidOverviewEveryWeeksByTime(time);
-            if(overview != null){
-                svResponse = new ResponseBuilder.Builder(200)
-                        .buildMessage("Get covid overview in this time successfully!")
-                        .buildData(overview)
-                        .build();
-            }else{
-                svResponse = new ResponseBuilder.Builder(404)
-                        .buildMessage("Can not get data overview in this time!")
-                        .buildData("")
-                        .build();
-            }
+//            CovidOverviewEveryWeek overview = covidOverviewRepository.findCovidOverviewEveryWeeksByTime(time);
+//            if(overview != null){
+//                svResponse = new ResponseBuilder.Builder(200)
+//                        .buildMessage("Get covid overview in this time successfully!")
+//                        .buildData(overview)
+//                        .build();
+//            }else{
+//                svResponse = new ResponseBuilder.Builder(404)
+//                        .buildMessage("Can not get data overview in this time!")
+//                        .buildData("")
+//                        .build();
+//            }
+            String covidInfoUrl = covidAPIUrl + "/covid-overview";
+            ResponseEntity<String> response = restTemplate.getForEntity(covidInfoUrl, String.class);
+            svResponse = new ResponseBuilder.Builder(200)
+                    .buildMessage("get covid overview successfully!")
+                    .buildData(gson.fromJson(getDataFromJson(response.getBody()),Object.class))
+                    .build();
         }else{
             svResponse = new ResponseBuilder.Builder(serverResponseCode)
                     .buildMessage("User is not verified!")
@@ -146,31 +154,37 @@ public class CallApiOtherContainerService {
         return svResponse;
     }
 
-    public ResponseBuilder getCovidDetailInProvince(String accessToken, String provinceName, String time){
+    public ResponseBuilder getCovidDetailInProvince(String accessToken){
         ResponseBuilder svResponse;
         //verify Token
         ResponseEntity<String> keycloakResponse = authKeyCloakService.verifyUser(accessToken);
         int serverResponseCode = keycloakResponse.getStatusCodeValue();
         if(serverResponseCode == 200){
-            CovidDetailEveryDay detailEveryDay = covidDetailRepository.findCovidDetailEveryDayByTime(time);
-            if(detailEveryDay != null){
-                ProvinceCovidInfo[] detailProvinces = detailEveryDay.getLocations();
-                ProvinceCovidInfo rs = new ProvinceCovidInfo();
-                for(ProvinceCovidInfo p: detailProvinces){
-                    if(p.getName().equals(provinceName)){
-                        rs = p;
-                    }
-                }
-                svResponse = new ResponseBuilder.Builder(200)
-                        .buildMessage("Get covid detail in "  +provinceName+ " in this time successfully!")
-                        .buildData(rs)
-                        .build();
-            }else{
-                svResponse = new ResponseBuilder.Builder(404)
-                        .buildMessage("Can not get data detail in this time!")
-                        .buildData("")
-                        .build();
-            }
+//            CovidDetailEveryDay detailEveryDay = covidDetailRepository.findCovidDetailEveryDayByTime(time);
+//            if(detailEveryDay != null){
+//                ProvinceCovidInfo[] detailProvinces = detailEveryDay.getLocations();
+//                ProvinceCovidInfo rs = new ProvinceCovidInfo();
+//                for(ProvinceCovidInfo p: detailProvinces){
+//                    if(p.getName().equals(provinceName)){
+//                        rs = p;
+//                    }
+//                }
+//                svResponse = new ResponseBuilder.Builder(200)
+//                        .buildMessage("Get covid detail in "  +provinceName+ " in this time successfully!")
+//                        .buildData(rs)
+//                        .build();
+//            }else{
+//                svResponse = new ResponseBuilder.Builder(404)
+//                        .buildMessage("Can not get data detail in this time!")
+//                        .buildData("")
+//                        .build();
+//            }
+            String covidInfoUrl = covidAPIUrl + "/covid-detail";
+            ResponseEntity<String> response = restTemplate.getForEntity(covidInfoUrl, String.class);
+            svResponse = new ResponseBuilder.Builder(200)
+                    .buildMessage("get covid info successfully!")
+                    .buildData(gson.fromJson(getDataFromJson(response.getBody()),Object.class))
+                    .build();
         }else{
             svResponse = new ResponseBuilder.Builder(serverResponseCode)
                     .buildMessage("User is not verified!")
@@ -179,5 +193,8 @@ public class CallApiOtherContainerService {
         }
         return svResponse;
     }
-
+    public String getDataFromJson(String jsonData){
+        JsonParser jsonParser = new JsonParser();
+        return String.valueOf(jsonParser.parse(jsonData).getAsJsonObject().get("data"));
+    }
 }
