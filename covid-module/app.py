@@ -1,5 +1,7 @@
 from flask import Flask
 import requests
+from bs4 import BeautifulSoup
+import json
 
 app = Flask(__name__)
 
@@ -14,6 +16,10 @@ def get_overview():
 def get_detail():
     data = requests.get(URL)
     return get_detail_internal(data.json())
+
+@app.route('/covid-news', methods=['GET'])
+def get_new(): 
+    return json.dumps(get_news())
 
 def get_overview_data(raw_data):
     today_internal = raw_data['today']['internal']
@@ -30,6 +36,22 @@ def get_detail_internal(raw_data):
         item.pop('treating')
         item.pop('cases')
     return {"data": detail_internal}
+
+
+def get_news():
+    data = requests.get("https://covid19.gov.vn/ban-tin-covid-19.htm") 
+    soup = BeautifulSoup(data.text, "lxml")
+    table = soup.find('div', attrs = {'class':'box-stream timeline_list'})  
+    quotes=[]
+    for row in table.find_all_next('div', attrs = {'class': 'box-stream-item'}):
+        quote = {} 
+        quote["link"] = row.a["href"]
+        quote["img"] = row.img['src']
+        quote["title"] = row.h2.a.text
+        quote["abstract"] = row.p.text 
+        quotes.append(quote)
+
+    return {"data": quotes}
 
 if __name__ == '__main__':
     app.run(port=5006,host='0.0.0.0',debug=True)

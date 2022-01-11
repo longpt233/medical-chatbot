@@ -1,2 +1,4 @@
 flask
-requests
+requests 
+bs4
+lxml
