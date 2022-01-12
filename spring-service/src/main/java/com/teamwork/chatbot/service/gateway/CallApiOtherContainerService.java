@@ -193,8 +193,29 @@ public class CallApiOtherContainerService {
         }
         return svResponse;
     }
+    public ResponseBuilder getCovidNews(String accessToken){
+        ResponseBuilder svResponse;
+        //verify Token
+        ResponseEntity<String> keycloakResponse = authKeyCloakService.verifyUser(accessToken);
+        int serverResponseCode = keycloakResponse.getStatusCodeValue();
+        if(serverResponseCode == 200){
+            String covidNewsUrl = covidAPIUrl + "/covid-news";
+            ResponseEntity<String> response = restTemplate.getForEntity(covidNewsUrl, String.class);
+            svResponse = new ResponseBuilder.Builder(200)
+                    .buildMessage("get covid news successfully!")
+                    .buildData(gson.fromJson(getDataFromJson(response.getBody()),Object.class))
+                    .build();
+        }else{
+            svResponse = new ResponseBuilder.Builder(serverResponseCode)
+                    .buildMessage("User is not verified!")
+                    .buildData(keycloakResponse.getBody())
+                    .build();
+        }
+        return svResponse;
+    }
     public String getDataFromJson(String jsonData){
         JsonParser jsonParser = new JsonParser();
         return String.valueOf(jsonParser.parse(jsonData).getAsJsonObject().get("data"));
     }
+
 }
