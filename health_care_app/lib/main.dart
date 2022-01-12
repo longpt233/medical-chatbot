@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:health_care_app/screens/chat_screen.dart';
-import 'package:health_care_app/screens/home_screen.dart';
+import 'package:health_care_app/providers/repository.dart';
+import 'package:health_care_app/screens/main/tabs_sceen.dart';
+import 'package:provider/provider.dart';
+import 'package:health_care_app/providers/auth.dart';
+import 'package:health_care_app/screens/auth/auth_screen.dart';
+import 'package:health_care_app/screens/welcome/welcome_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,10 +16,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Shop App',
-      theme: ThemeData(
-        textTheme: const TextTheme(
+    // SystemChrome.setSystemUIOverlayStyle(
+    //     const SystemUiOverlayStyle(statusBarColor: Colors.white));
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (ctx) => Auth()),
+      ],
+      child: MaterialApp(
+        title: 'Health Care App',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.blue)
+              .copyWith(secondary: Colors.green),
+          textTheme: const TextTheme(
             bodyText1: TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.bold,
@@ -22,16 +35,18 @@ class MyApp extends StatelessWidget {
             headline6: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
-            )
+              fontSize: 26,
+            ),
+          ),
+          scaffoldBackgroundColor: Colors.grey[100],
         ),
-        colorScheme:
-        ColorScheme.fromSwatch(primarySwatch: Colors.lightBlue)
-            .copyWith(secondary: Colors.yellow),
+        home: const WelcomeScreen(),
+        routes: {
+          WelcomeScreen.routeName: (ctx) => const WelcomeScreen(),
+          TabScreen.routeName: (ctx) => const TabScreen(),
+          AuthScreen.routeName: (ctx) => const AuthScreen(),
+        },
       ),
-      home: HomePage(),
-      // routes: {
-      //   ProductOverviewScreen.routeName: (ctx) => ProductOverviewScreen(),
-      // },
     );
   }
 }

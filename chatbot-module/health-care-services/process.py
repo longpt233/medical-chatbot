@@ -81,9 +81,9 @@ def disease2info(disease):
         if disease.lower() in name_disease:
             return disease_info[1]['tra-loi']
 
-
 def disease2doing(disease):
     for data in data_structure:
         if (str(data['Tên bệnh']).strip().lower().startswith(disease)):
-            return  data['Các biện pháp điều trị']
+            data['Các biện pháp điều trị'] = data['Các biện pháp điều trị'].replace(r"'\xa0', ","")
+            return '\n'.join(data['Các biện pháp điều trị'][2:-2].split(r"', '"))
     

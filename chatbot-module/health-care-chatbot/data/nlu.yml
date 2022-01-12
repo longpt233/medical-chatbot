@@ -29,9 +29,9 @@ nlu:
 
 - intent: ask_covid_domestic_case
   examples: |
-    - tỉnh thành [Hà Nội](province)
-    - số liệu theo tỉnh thành [Hải Dương](province)
-    - số liệu chi tiết theo tỉnh thành [Hà Nội](province)
+    - tỉnh thành [Vĩnh Phúc](province)
+    - số liệu covid theo tỉnh thành [Hà Nam](province)
+    - số liệu covid chi tiết theo tỉnh thành [Long An](province)
 
 - lookup: province
   examples: |
