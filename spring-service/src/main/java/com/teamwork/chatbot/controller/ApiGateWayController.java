@@ -57,4 +57,10 @@ public class ApiGateWayController {
         ResponseBuilder svResponse = callApiOtherContainerService.getCovidDetailInProvince(accessToken);
         return new ResponseEntity<>(svResponse, HttpStatus.valueOf(svResponse.getCode()));
     }
+    @GetMapping("/covid-news")
+    public ResponseEntity<Object> getCovidNews(@RequestHeader("Authorization") String bearerToken){
+        String accessToken = bearerToken.split(" ")[1];
+        ResponseBuilder svResponse = callApiOtherContainerService.getCovidNews(accessToken);
+        return new ResponseEntity<>(svResponse, HttpStatus.valueOf(svResponse.getCode()));
+    }
 }

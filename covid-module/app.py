@@ -2,6 +2,8 @@ from flask import Flask
 import requests
 from bs4 import BeautifulSoup
 import json
+from flask import jsonify 
+
 
 app = Flask(__name__)
 
@@ -9,13 +11,13 @@ URL = 'https://static.pipezero.com/covid/data.json'
 
 @app.route('/covid-overview', methods=['GET'])
 def get_overview():
-    data = requests.get(URL)
-    return get_overview_data(data.json())
+    data = requests.get(URL) 
+    return jsonify(get_overview_data(data.json())) 
 
 @app.route('/covid-detail', methods=['GET'])
 def get_detail():
     data = requests.get(URL)
-    return get_detail_internal(data.json())
+    return jsonify(get_detail_internal(data.json()))
 
 @app.route('/covid-news', methods=['GET'])
 def get_new(): 

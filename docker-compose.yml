@@ -66,6 +66,7 @@ services:
         container_name: chatbot-service-module-name
         environment:
             URL_CHATBOT_RASA: http://chatbot-rasa-module-name:5005   # same name service 
+            URL_COVID_MODULE: http://covid-module-name:5006
         restart: always
         ports:
             - "5000:5000"

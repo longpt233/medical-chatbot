@@ -2,7 +2,7 @@ from pyvi import ViTokenizer
 import math
 import re
 
-from db import data_collection, data
+from db import data, data_structure
 
 
 class TfIdf:
@@ -61,11 +61,15 @@ def preprocessing(list_sentence):
     list_word = sentence.split()
     return list_word
 
-
 tf_idf = TfIdf()
-for i in range(len(data)):
-    tf_idf.add_document(data[i][0]['van-de'][14:],
-                        preprocessing(data[i][3]['tra-loi']))
+def prepare():
+
+    print("loading mongodb .....")
+    for i in range(len(data)):
+        tf_idf.add_document(data[i][0]['van-de'][14:], preprocessing(data[i][3]['tra-loi']))
+    
+    data_structure[1]
+    print("mongodb loaded .....")
 
 
 def symptoms2disease(list_symptom):
@@ -77,3 +81,9 @@ def disease2info(disease):
         if disease.lower() in name_disease:
             return disease_info[1]['tra-loi']
 
+
+def disease2doing(disease):
+    for data in data_structure:
+        if (str(data['Tên bệnh']).strip().lower().startswith(disease)):
+            return  data['Các biện pháp điều trị']
+    
