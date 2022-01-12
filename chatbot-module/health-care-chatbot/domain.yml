@@ -6,6 +6,8 @@ intents:
 - disease_info
 - predict_disease
 - ask_covid_total_case
+- ask_covid_domestic_case
+- disease_doing # goi y dieu tri 
 
 slots:
   symptom:

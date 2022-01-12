@@ -4,13 +4,70 @@ nlu:
   examples: |
     - Tôi muốn hỏi về bệnh [viêm xoang](disease).
     - Bệnh [tiểu đường](disease) là gì?
+    
 - intent: predict_disease
   examples: |
     - Tôi bị [đau đầu](symptom) là bị bệnh gì?
     - [Mất ngủ](symptom) có phải là bệnh không?
     - [Hoa mắt](symptom), [chóng mặt](symptom) là dấu hiệu của bệnh gì?
+
+- intent: disease_doing
+  examples: |
+    - Tôi bị [Rối loạn tiền đình](disease)thì cần làm gì ?
+    - [Suy thận](disease)thì phải làm gì?
+    - [Sốt rét](disease)thì nên làm gì ?
+    - Cần làm gì khi bị [Viêm đại tràng](disease)
+    - Hướng dẫn điều trị bệnh [Viêm thanh quản](disease)
+
 - intent: ask_covid_total_case
   examples: |
     - hôm nay có bao nhiêu ca covid ? 
     - tình hình covid hôm nay ?  
+    - tình hình trong nước 
+    - số liệu trong nước 
+    - các thành phố 
+
+- intent: ask_covid_domestic_case
+  examples: |
+    - tỉnh thành [Hà Nội](province)
+    - số liệu theo tỉnh thành [Hải Dương](province)
+    - số liệu chi tiết theo tỉnh thành [Hà Nội](province)
+
+- lookup: province
+  examples: |
+    - TP. Hồ Chí Minh
+    - Bình Dương
+    - Đồng Nai
+    - Tây Ninh
+    - Hà Nội
+    - Vĩnh Long
+    - Đồng Tháp
+    - Cà Mau
+    - Cần Thơ
+    - Khánh Hòa
+    - Long An
+    - Bình Phước
+    - Tiền Giang
+    - An Giang
+    - Bạc Liêu
+    - Trà Vinh
+    - Kiên Giang
+    - Sóc Trăng
+    - Bến Tre
+    - Bà Rịa – Vũng Tàu
+    - Bình Thuận
+    - Bình Định
+    - Hải Phòng
+    - Thừa Thiên Huế
+    - Bắc Ninh
+    - Đà Nẵng
+    - Hậu Giang
+    - Đắk Lắk
+    - Lâm Đồng
+    - Thanh Hóa
+    - Hà Giang
+    - Bắc Giang
+    - Nghệ An
+
+
 
